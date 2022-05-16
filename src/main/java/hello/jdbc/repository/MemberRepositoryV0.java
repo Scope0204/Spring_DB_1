@@ -67,6 +67,49 @@ public class MemberRepositoryV0 {
         }
     }
 
+    // 데이터 변경
+    public void update(String memberId, int money) throws SQLException {
+        String sql = "update member set money=? where member_id=?"; // 2개의 쿼리 파라미터를 받음
+
+        Connection con = null;
+        PreparedStatement pstmt = null;
+
+        try {
+            con = getConnection();
+            pstmt = con.prepareStatement(sql);
+            pstmt.setInt(1,money) ;
+            pstmt.setString(2,memberId);
+            int resultSize = pstmt.executeUpdate(); // 쿼리를 실행하고 영향받은 row수
+            log.info("resultSize={}", resultSize);
+        } catch (SQLException e) {
+            log.error("db error", e);
+            throw e;
+        } finally{
+            close(con, pstmt, null); // 쿼리 실행 후 리소스(Connection,PreparedStatement)를 정리
+        }
+    }
+
+    // 회원 삭제
+    public void delete(String memberId) throws SQLException {
+        String sql = "delete from member where member_id =?";
+
+        Connection con = null;
+        PreparedStatement pstmt = null;
+
+        try {
+            con = getConnection();
+            pstmt = con.prepareStatement(sql);
+            pstmt.setString(1,memberId);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            log.error("db error", e);
+            throw e;
+        } finally{
+            close(con, pstmt, null);
+        }
+    }
+
+
     // 사용한 자원(리소스)들을 모두 close() 해야한다 -> 정리하지 않으면 리소스 누수(계속 유지되는 것)가 일어나 장애가 발생할 수 있다
     // rs는 쿼리를 조회하는 리소스
     private void close(Connection con, Statement stmt, ResultSet rs){
